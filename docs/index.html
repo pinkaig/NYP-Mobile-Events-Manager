@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NYP Mobile Events Manager</title>
+<meta name="description" content="A mobile events app for Nanyang Polytechnic students: React frontend, Laravel REST API and MySQL. Try the live demo in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: split hero (story left, working phone right), then a single reading column of facts about how it's built. */
+:root {
+  --paper: #f2f5fb;
+  --surface: #ffffff;
+  --ink: #101b33;
+  --muted: #55647f;
+  --line: #d6deec;
+  --navy: #1d3f91;      /* NYP blue */
+  --red: #d8231a;       /* NYP red */
+  --chip: #e5ecf8;
+  --phone: #0d1324;
+  --font-display: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0b1120; --surface: #121a2e; --ink: #e8edf7; --muted: #9aa8c2; --line: #24304a;
+    --navy: #8fb0ff; --red: #ff6b5f; --chip: #1a2540; --phone: #02040a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0b1120; --surface: #121a2e; --ink: #e8edf7; --muted: #9aa8c2; --line: #24304a;
+  --navy: #8fb0ff; --red: #ff6b5f; --chip: #1a2540; --phone: #02040a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 1rem/1.6 var(--font-body); }
+a { color: var(--navy); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+/* Hero */
+.hero { padding-block: 56px 72px; border-bottom: 1px solid var(--line); }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 56px; align-items: center; }
+.eyebrow { font: 500 0.75rem/1.4 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+.eyebrow b { color: var(--red); font-weight: 500; }
+h1 { font: 700 clamp(2.4rem, 5.5vw, 4rem)/1.02 var(--font-display); letter-spacing: -0.02em; margin: 0 0 20px; text-wrap: balance; }
+h1 span { color: var(--navy); }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 34em; margin: 0 0 28px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; font: 500 0.95rem/1 var(--font-body); padding: 13px 20px; border-radius: 999px; text-decoration: none; cursor: pointer; border: 1.5px solid var(--navy); }
+.btn.primary { background: var(--navy); color: var(--surface); }
+.btn.ghost { background: transparent; color: var(--navy); }
+.btn:hover { filter: brightness(1.1); }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 0; list-style: none; }
+.stack li { font: 500 0.8rem/1 var(--font-mono); background: var(--chip); color: var(--ink); padding: 8px 12px; border-radius: 6px; }
+
+/* Phone */
+.device { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.phone { position: relative; width: 352px; max-width: 100%; aspect-ratio: 352 / 720; background: var(--phone); border-radius: 46px; padding: 12px;
+  box-shadow: 0 0 0 1.5px #2a3550, 0 30px 60px -20px rgba(16, 27, 51, 0.45), 0 12px 24px -12px rgba(16, 27, 51, 0.3); }
+.phone::before { content: ""; position: absolute; top: 20px; left: 50%; width: 92px; height: 24px; margin-left: -46px; background: var(--phone); border-radius: 20px; z-index: 2; }
+.screen { width: 100%; height: 100%; border-radius: 35px; overflow: hidden; background: #b8d4ff; padding-top: 34px; }
+.screen iframe { width: 100%; height: 100%; border: 0; display: block; }
+.device-note { font: 400 0.8rem/1.4 var(--font-mono); color: var(--muted); text-align: center; display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.linkbtn { font: inherit; color: var(--navy); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+/* Sections */
+section.block { padding-block: 64px; border-bottom: 1px solid var(--line); }
+h2 { font: 700 1.9rem/1.15 var(--font-display); letter-spacing: -0.01em; margin: 0 0 8px; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0 0 32px; max-width: 40em; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding: 0; margin: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; padding-top: 16px; border-top: 2px solid var(--navy); }
+.steps li::before { content: "Step " counter(s); display: block; font: 500 0.75rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+.steps h3 { font: 600 1.05rem/1.3 var(--font-body); margin: 0 0 6px; }
+.steps p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+.flow { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+.node { flex: 1 0 170px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.node .k { font: 500 0.7rem/1 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.node .v { font: 600 1.05rem/1.3 var(--font-body); margin: 8px 0 4px; }
+.node .d { font-size: 0.85rem; color: var(--muted); }
+.arrow { flex: 0 0 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--navy); font: 500 0.65rem/1.2 var(--font-mono); text-align: center; }
+.arrow svg { width: 28px; height: 12px; }
+
+.two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; margin-top: 40px; }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 0.7rem/1.2 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+td code, .mono { font: 400 0.82rem/1.4 var(--font-mono); }
+.verb { display: inline-block; min-width: 54px; font: 500 0.72rem/1 var(--font-mono); padding: 4px 6px; border-radius: 4px; background: var(--chip); color: var(--navy); text-align: center; }
+h3.mini { font: 600 1rem/1.3 var(--font-body); margin: 0 0 12px; }
+
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.notes ul { margin: 0; padding-left: 1.1em; color: var(--muted); }
+.notes li { margin-bottom: 8px; }
+.notes li strong { color: var(--ink); font-weight: 600; }
+footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
+
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .two, .notes { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .hero { padding-block: 36px 48px; }
+  .steps { grid-template-columns: minmax(0, 1fr); }
+  .flow { flex-direction: column; overflow: visible; }
+  .node { flex: 0 0 auto; }
+  .arrow { flex: 0 0 36px; }
+  .arrow svg { transform: rotate(90deg); }
+  .phone { width: 320px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow"><b>Final Year Project</b> &middot; Nanyang Polytechnic &middot; 2019</p>
+      <h1>NYP Mobile <span>Events</span> Manager</h1>
+      <p class="lead">A mobile app where students browse campus events and organisers publish new ones. The phone on this page is running the real app, so you can tap around and create an event.</p>
+      <div class="actions">
+        <a class="btn primary" href="app.html" target="_blank" rel="noopener">Open the app full screen</a>
+        <a class="btn ghost" href="https://github.com/pinkaig/NYP-Mobile-Events-Manager">View source on GitHub</a>
+      </div>
+      <ul class="stack" aria-label="Tech stack">
+        <li>React 16</li><li>React Router</li><li>Laravel 5.8</li><li>PHP 7</li><li>MySQL</li><li>REST API</li>
+      </ul>
+    </div>
+    <div class="device">
+      <div class="phone">
+        <div class="screen"><iframe id="app" src="app.html#/events" title="NYP Mobile Events Manager running live"></iframe></div>
+      </div>
+      <div class="device-note">
+        <span>Live demo &middot; your changes stay on your device</span>
+        <button type="button" class="linkbtn" id="reset">Reset data</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="block">
+    <div class="wrap">
+      <h2>Try it in under a minute</h2>
+      <p class="sub">Use the phone above. Everything runs in your browser, so there's nothing to install or sign up for.</p>
+      <ol class="steps">
+        <li><h3>Browse events</h3><p>The <strong>Events</strong> tab loads the event list from the API. Swipe the table sideways to see venue and organiser.</p></li>
+        <li><h3>Create an event</h3><p>Tap <strong>Create an Event</strong>, fill in the form and submit. The API stores it like a new database row.</p></li>
+        <li><h3>See it appear</h3><p>Go back to <strong>Events</strong> and your new event is in the list. Check <strong>Users</strong> for the user directory.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <h2>How it's built</h2>
+      <p class="sub">A React single-page app talks to a Laravel REST API over JSON. Eloquent models map to five MySQL tables with foreign keys between them.</p>
+      <div class="flow" role="list">
+        <div class="node" role="listitem"><div class="k">Client</div><div class="v">React 16 app</div><div class="d">HashRouter screens: events, add event, edit event, users</div></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 12"><path d="M0 6h24M19 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>JSON</div>
+        <div class="node" role="listitem"><div class="k">API</div><div class="v">Laravel 5.8</div><div class="d">Resource routes under <span class="mono">/api</span>, five controllers, token auth scaffold</div></div>
+        <div class="arrow" aria-hidden="true"><svg viewBox="0 0 28 12"><path d="M0 6h24M19 1l6 5-6 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Eloquent</div>
+        <div class="node" role="listitem"><div class="k">Data</div><div class="v">MySQL / MariaDB</div><div class="d">Migrations for users, categories, events, registrations, feedback</div></div>
+      </div>
+
+      <div class="two">
+        <div>
+          <h3 class="mini">API endpoints</h3>
+          <div class="tbl">
+            <table>
+              <thead><tr><th>Method</th><th>Route</th><th>Controller</th></tr></thead>
+              <tbody>
+                <tr><td><span class="verb">GET</span></td><td><code>/api/events</code></td><td><code>EventController@index</code></td></tr>
+                <tr><td><span class="verb">GET</span></td><td><code>/api/events/{id}</code></td><td><code>EventController@show</code></td></tr>
+                <tr><td><span class="verb">POST</span></td><td><code>/api/events</code></td><td><code>EventController@store</code></td></tr>
+                <tr><td><span class="verb">PUT</span></td><td><code>/api/events/{id}</code></td><td><code>EventController@update</code></td></tr>
+                <tr><td><span class="verb">GET</span></td><td><code>/api/users</code></td><td><code>UserController@index</code></td></tr>
+                <tr><td><span class="verb">GET</span></td><td><code>/api/categories</code></td><td><code>CategoryController@index</code></td></tr>
+                <tr><td><span class="verb">POST</span></td><td><code>/api/event__registers</code></td><td><code>EventRegisterController@store</code></td></tr>
+                <tr><td><span class="verb">POST</span></td><td><code>/api/event__feedback</code></td><td><code>FeedbackController@store</code></td></tr>
+                <tr><td><span class="verb">POST</span></td><td><code>/api/register</code>, <code>/api/login</code></td><td><code>Auth\*Controller</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3 class="mini">Data model</h3>
+          <div class="tbl">
+            <table>
+              <thead><tr><th>Table</th><th>Key columns</th></tr></thead>
+              <tbody>
+                <tr><td><code>users</code></td><td>username, role, phoneNo, api_token</td></tr>
+                <tr><td><code>categories</code></td><td>Dance, Sports, Entertainment, Cultural</td></tr>
+                <tr><td><code>events</code></td><td>title, dates, venue, organiser, status, closing_date, <span class="mono">u_id&nbsp;&rarr;&nbsp;users</span>, <span class="mono">c_id&nbsp;&rarr;&nbsp;categories</span></td></tr>
+                <tr><td><code>event__registers</code></td><td>status, registered_date, <span class="mono">u_id</span>, <span class="mono">e_id&nbsp;&rarr;&nbsp;events</span></td></tr>
+                <tr><td><code>event__feedback</code></td><td>feedback_msg, rating, <span class="mono">u_id</span>, <span class="mono">e_id</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap notes">
+      <div>
+        <h2>About this demo</h2>
+        <ul>
+          <li><strong>The app is the original 2019 build.</strong> It's compiled from the React source in <span class="mono">frontend/</span>, with mobile layout fixes added on top.</li>
+          <li><strong>The backend is simulated so the demo needs no server.</strong> A small script in the page answers the same <span class="mono">/api</span> routes as the Laravel controllers. It starts from the data in <span class="mono">database/nyp_db.sql</span>.</li>
+          <li><strong>Your edits stay on your device.</strong> They're saved in your browser only. Use <em>Reset data</em> under the phone to start over.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>What I'd improve next</h2>
+        <ul>
+          <li>Load the selected event into the <strong>Edit</strong> form and send <span class="mono">PUT /api/events/{id}</span> with the event ID.</li>
+          <li>Fix the delete route typo, and store uploaded photos so event images display.</li>
+          <li>Move the API base URL into an environment variable, enable CORS, and turn on the commented-out <span class="mono">auth:api</span> route group.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Source, setup steps and database schema are in the <a href="https://github.com/pinkaig/NYP-Mobile-Events-Manager">GitHub repository</a>.</div>
+</footer>
+
+<script>
+document.getElementById('reset').addEventListener('click', function () {
+  var f = document.getElementById('app');
+  try { f.contentWindow.nypDemoReset(); } catch (e) {}
+  f.src = 'app.html#/events';
+  try { f.contentWindow.location.reload(); } catch (e) {}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+vendor/
+frontend/build/
+.env
+*.log
+.phpunit.result.cache
+.vs/
+Thumbs.db
+.DS_Store

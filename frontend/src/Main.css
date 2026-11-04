@@ -1,0 +1,45 @@
+header{
+    background-image: url(../src/_images/nypapp_header.png);
+    background-repeat: no-repeat;
+    height: 300px;
+    margin-left: 500px;
+  }
+  
+  ul.header {
+    background-color: #FFF;
+    color: rgb(77, 110, 255);
+    padding: 40px;
+    padding-left: 500px;
+    column-count: 2;
+  column-gap: 20px;
+  }
+  ul.header li a {
+    text-decoration: none;
+    font-size: 30px;
+    padding: 20px;
+    display: inline-block;
+  }
+  
+  ul.header li{
+    margin-left: 150px;
+  }
+  
+  ul.header {
+    display: flex;
+    list-style: none;
+  }
+  
+  #Event{
+    list-style-type: none;
+    background-color: white;
+    color: rgb(77, 110, 255);
+    border: 2px solid green;
+    padding: 10px 20px;
+  }
+  .nav:hover, .nav:active, .nav:visited, .nav:link {
+    background-color: pink;
+    color: rgb(77, 110, 255);
+    border-radius: 25px;
+  }
+
+  
