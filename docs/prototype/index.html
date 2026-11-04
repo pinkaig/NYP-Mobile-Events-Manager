@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Events@NYP</title>
+<meta name="description" content="Working mobile prototype of the NYP Events Manager design: browse events, view details, sign up, calendar, search and host events.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Quicksand:wght@500;600;700&display=swap">
+<style>
+/* Layout: one phone-width app column on the poster's navy frame. Colours, type and shapes follow the 2019 poster design. */
+:root {
+  --frame: #0c1a8c;        /* poster navy */
+  --app-bg: #c6e0fb;       /* light sky behind content */
+  --card: #ffffff;
+  --navy: #0a1fa8;         /* buttons, calendar panel */
+  --title-red: #f23f5d;    /* EVENTS@NYP */
+  --card-title: #f04a2a;   /* event names */
+  --yellow: #ffe83d;       /* outline + accents */
+  --lav: #8278d6;          /* italic body copy */
+  --pink: #ff5c86;         /* button text, borders */
+  --ledge: #8e9ab4;
+  --ink: #101426;
+  --font-title: "Rubik", "Tahoma", "Segoe UI", sans-serif;
+  --font-body: "Quicksand", "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--frame); font-family: var(--font-body); color: var(--ink); -webkit-tap-highlight-color: transparent; }
+img { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+.app { position: relative; max-width: 430px; min-height: 100%; margin: 0 auto; background: var(--app-bg); display: flex; flex-direction: column;
+  box-shadow: 0 0 0 6px #d71920, 0 0 60px rgba(0,0,0,.35); }
+@media (max-width: 460px) { .app { box-shadow: none; } }
+
+/* Header */
+.top { position: relative; padding: 14px 14px 0; }
+.banner { position: relative; height: 172px; border-radius: 0 0 26px 26px; background: #0b1630 url(img/header-bg.jpg) center 60% / cover; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px 0 18px;
+  box-shadow: 0 9px 0 -2px var(--ledge), 0 14px 18px -6px rgba(16, 24, 60, .45); }
+.logo-card { background: #fff; border: 2px solid #4f6cf0; border-radius: 12px; padding: 8px 18px; width: 72%; }
+.logo-card img { width: 100%; height: auto; }
+.pill { font: 500 1.05rem/1 var(--font-body); color: var(--pink); background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 9px 20px; backdrop-filter: blur(2px); text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+
+/* Page titles: red fill, yellow outline, soft drop */
+.title { font: 900 2.45rem/1.02 var(--font-title); letter-spacing: .01em; color: var(--title-red); text-align: center; margin: 30px 0 18px; text-transform: uppercase;
+  text-shadow: 2px 0 0 var(--yellow), -2px 0 0 var(--yellow), 0 2px 0 var(--yellow), 0 -2px 0 var(--yellow), 1.5px 1.5px 0 var(--yellow), -1.5px -1.5px 0 var(--yellow), 1.5px -1.5px 0 var(--yellow), -1.5px 1.5px 0 var(--yellow), 3px 4px 4px rgba(120, 60, 0, .35); }
+.title.dark { color: #0d0d0d; }
+.title-row { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; padding: 0 14px; }
+.title-row .title { margin: 26px 0 16px; }
+
+main { flex: 1; padding: 0 14px 96px; }
+
+.back { width: 32px; height: 32px; display: grid; place-items: center; background: #fff; border: 2px solid var(--pink); color: var(--navy); border-radius: 3px; padding: 0; }
+.back svg { width: 18px; height: 18px; }
+
+.btn-navy { background: var(--navy); color: var(--pink); font: italic 600 1rem/1 var(--font-body); border: 1px solid #000a5c; padding: 12px 26px; box-shadow: 0 3px 6px rgba(0,0,40,.35); }
+.btn-navy[disabled] { background: #4caf50; color: #fff; cursor: default; }
+
+/* Events list */
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 4px; }
+.cal-link { display: inline-flex; align-items: center; gap: 8px; font: 700 .9rem/1 var(--font-title); color: var(--ink); text-decoration: underline; background: none; border: 0; padding: 4px 0; }
+.cal-link img { width: 22px; height: 22px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+.card { background: var(--card); display: grid; grid-template-columns: 42% 1fr; min-height: 132px; box-shadow: 0 2px 4px rgba(20, 40, 90, .18); text-align: left; border: 0; padding: 0; color: inherit; }
+.card img { width: 100%; height: 100%; object-fit: cover; }
+.card .txt { padding: 8px 8px 8px 9px; display: flex; flex-direction: column; min-width: 0; }
+.card h3 { font: 700 .92rem/1.15 var(--font-title); color: var(--card-title); margin: 0 0 6px; text-align: center; }
+.card p { font: italic 500 .72rem/1.35 var(--font-body); color: var(--lav); margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.card .more { margin-top: auto; align-self: flex-end; font: italic 600 .68rem/1 var(--font-body); color: var(--lav); text-decoration: underline; padding-top: 6px; }
+.empty { text-align: center; color: var(--navy); font-weight: 600; padding: 24px 8px; }
+
+/* Details */
+.detail-img { background: #fff; padding: 10px; }
+.detail-img .frame { border: 4px solid #f2416b; background: #000; }
+.detail-img img { width: 100%; max-height: 260px; object-fit: contain; }
+.d-head { display: flex; align-items: center; gap: 10px; margin: 18px 0 16px; flex-wrap: wrap; }
+.d-head .title { margin: 0; font-size: 1.9rem; text-align: left; flex: 1 1 auto; min-width: 0; }
+.tag { font: 700 .62rem/1 var(--font-title); color: #fff; background: #5aa3f0; padding: 6px 8px; text-transform: uppercase; letter-spacing: .05em; }
+.d-head .btn-navy { margin-left: auto; }
+.info { border: 4px solid #5b6770; border-radius: 16px; padding: 12px 16px; background: #fff; font: italic 600 .95rem/1.5 var(--font-body); color: var(--lav); margin-bottom: 16px; }
+.info b { font-weight: 700; }
+.desc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.desc-row span { font: italic 600 .85rem/1 var(--font-body); color: var(--lav); }
+.share { display: flex; align-items: center; gap: 12px; color: #1d8fe6; }
+.share small { font: 600 .6rem/1 var(--font-body); color: var(--lav); }
+.share svg { width: 18px; height: 18px; fill: currentColor; }
+.share .gplus { font: 800 .9rem/1 var(--font-title); letter-spacing: -.02em; }
+.desc { background: #fff; padding: 12px 14px; font: italic 500 .88rem/1.55 var(--font-body); color: #5f58b8; }
+.desc ul { margin: 8px 0 0; padding-left: 1.1em; }
+
+/* Calendar */
+.cal { background: var(--navy); border-radius: 18px; padding: 18px 22px 14px; position: relative; }
+.cal-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.day { aspect-ratio: 1; background: #fff; border: 1.5px solid #9aa3c4; position: relative; padding: 0; font: 800 .72rem/1 var(--font-title); color: #111; text-align: left; overflow: hidden; }
+.day span { position: absolute; top: 3px; left: 4px; z-index: 1; }
+.day.has { background: #f06aa0; cursor: pointer; }
+.day.has img { position: absolute; inset: 14px 5px 5px 12px; width: calc(100% - 17px); height: calc(100% - 19px); object-fit: cover; }
+.day.has.sel { outline: 3px solid var(--yellow); }
+.day.blank { visibility: hidden; }
+.cal-nav { position: absolute; top: 50%; width: 26px; height: 52px; margin-top: -26px; background: var(--yellow); border: 0; color: var(--navy); font: 900 1rem/1 var(--font-title); display: grid; place-items: center; padding: 0; }
+.cal-nav.prev { left: -8px; border-radius: 0 8px 8px 0; }
+.cal-nav.next { right: -8px; border-radius: 8px 0 0 8px; }
+.cal-foot { display: flex; align-items: center; gap: 18px; margin-top: 16px; }
+.cal-foot .m { font: 900 1.35rem/1 var(--font-title); color: var(--yellow); }
+.cal-foot .y { font: 700 .8rem/1 var(--font-title); color: #c7d0ff; }
+.cal-foot .oval { margin-left: auto; background: #fff; border-radius: 50%; padding: 8px 18px; width: 46%; }
+.cal-list { margin-top: 14px; display: grid; gap: 8px; }
+.cal-item { display: flex; gap: 10px; align-items: center; background: #fff; border: 0; padding: 8px; text-align: left; box-shadow: 0 2px 4px rgba(20,40,90,.15); }
+.cal-item img { width: 46px; height: 46px; object-fit: cover; }
+.cal-item b { display: block; font: 700 .9rem/1.2 var(--font-title); color: var(--card-title); }
+.cal-item small { font: italic 600 .78rem/1.3 var(--font-body); color: var(--lav); }
+
+/* Search, menu, forms */
+.search-box { display: flex; align-items: center; gap: 10px; background: #fff; border: 3px solid var(--navy); border-radius: 999px; padding: 6px 16px; margin-bottom: 12px; }
+.search-box img { width: 22px; height: 22px; }
+.search-box input { flex: 1; border: 0; outline: 0; font: 600 1rem/1.4 var(--font-body); padding: 6px 0; min-width: 0; background: transparent; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip { font: 700 .75rem/1 var(--font-title); padding: 8px 12px; border-radius: 999px; border: 2px solid var(--navy); background: #fff; color: var(--navy); }
+.chip[aria-pressed="true"] { background: var(--navy); color: var(--yellow); }
+.menu-list { display: grid; gap: 10px; }
+.menu-item { display: flex; align-items: center; gap: 14px; background: #fff; border: 0; padding: 12px 14px; text-align: left; font: 700 1rem/1.2 var(--font-title); color: var(--navy); box-shadow: 0 2px 4px rgba(20,40,90,.15); }
+.menu-item img { width: 32px; height: 32px; object-fit: contain; }
+.menu-item small { display: block; font: italic 600 .78rem/1.3 var(--font-body); color: var(--lav); margin-top: 3px; }
+.form { background: #fff; padding: 16px; display: grid; gap: 12px; }
+.form label { display: grid; gap: 5px; font: 700 .85rem/1.2 var(--font-title); color: var(--navy); }
+.form input, .form select, .form textarea { font: 600 .95rem/1.4 var(--font-body); padding: 9px 10px; border: 2px solid #b9c4e4; border-radius: 6px; width: 100%; background: #fff; color: var(--ink); }
+.form textarea { min-height: 80px; resize: vertical; }
+.form .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form .btn-navy { justify-self: center; margin-top: 4px; }
+.err { color: #c8102e; font: 600 .85rem/1.3 var(--font-body); min-height: 1em; margin: 0; }
+.who { text-align: center; font: 600 .9rem/1.3 var(--font-body); color: var(--navy); margin: -6px 0 14px; }
+
+/* Bottom bar */
+.tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-radius: 18px 18px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -3px 10px rgba(10, 30, 90, .18); z-index: 5; }
+.tab { background: none; border: 0; display: grid; place-items: center; padding: 6px 0; height: 56px; }
+.tab img { height: 38px; width: auto; }
+.tab[aria-current="page"] { background: #eef3ff; box-shadow: inset 0 0 0 1px #d6def5; }
+
+/* Toast / sheet */
+.sheet { position: fixed; inset: 0; background: rgba(5, 12, 50, .55); display: grid; place-items: center; z-index: 10; padding: 24px; }
+.sheet-box { background: #fff; max-width: 320px; width: 100%; text-align: center; padding: 26px 22px 22px; border: 4px solid var(--navy); border-radius: 18px; }
+.sheet-box img { width: 84px; height: 84px; margin: 0 auto 12px; }
+.sheet-box h2 { font: 900 1.4rem/1.15 var(--font-title); color: var(--title-red); margin: 0 0 6px; }
+.sheet-box p { font: italic 600 .92rem/1.45 var(--font-body); color: var(--lav); margin: 0 0 16px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sheet-box { animation: pop .22s ease-out; }
+  @keyframes pop { from { transform: scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+@media (max-width: 360px) { .title { font-size: 2rem; } .card { grid-template-columns: 1fr; } .card img { height: 110px; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="banner">
+      <div class="logo-card"><img src="img/nyp-logo.png" alt="NYP Nanyang Polytechnic" width="640" height="188"></div>
+      <div class="pill">NYP Events Application</div>
+    </div>
+  </div>
+  <div id="view"></div>
+  <nav class="tabbar" aria-label="Main">
+    <button class="tab" data-go="events" aria-label="Home"><img src="img/home.png" alt=""></button>
+    <button class="tab" data-go="search" aria-label="Search"><img src="img/search.png" alt=""></button>
+    <button class="tab" data-go="menu" aria-label="Menu"><img src="img/menu.png" alt=""></button>
+  </nav>
+</div>
+<div id="sheet"></div>
+
+<script>
+(function () {
+  "use strict";
+  // Event content is taken from the real 2019 event posters in the project's Resources folder.
+  var EVENTS = [
+    { id: "fusion1", title: "FUSION1", category: "Exhibition", img: "img/fusion19.jpg", start: "2019-04-17", end: "2019-04-20", time: "6pm - 8pm", venue: "NYP SIDM Block M",
+      summary: "NOW Fusion19: A Glimpse of Tomorrow. The design school's annual graduation showcase.",
+      body: ["Fusion19 brings together final-year work from the School of Interactive & Digital Media under the theme 'A Glimpse of Tomorrow'.", "Walk through installations, games, animation and product design by graduating students."] },
+    { id: "japan", title: "Japan", category: "Overseas", img: "img/japan.jpg", start: "2019-04-01", end: "2019-04-09", time: "9 days", venue: "Tokyo / Yokohama / Hokkaido",
+      summary: "SEG Educational Trip to Tokyo, Yokohama and Hokkaido. Estimated cost $3,450.",
+      body: ["A School of Engineering educational trip to Japan.", "Highlights:"], list: ["JAXA Tsukuba Space Center", "Yokohama Smart City", "ANA maintenance factory", "City tour, sightseeing and university, factory and cultural visits"], note: "Briefing on Fri 7 Dec 2018, 12pm at LTQ-9. Sign up by 7 Jan 2019." },
+    { id: "seg-fmo", title: "SEG FMO", category: "CCA", img: "img/seg-fmo.jpg", start: "2019-03-18", end: "2019-04-12", time: "Various dates", venue: "School of Engineering",
+      summary: "School of Engineering Freshmen Orientation recruitment. Join the team that welcomes new students.",
+      body: ["Be part of the SEG Freshmen Orientation (FMO) committee.", "Key dates:"], list: ["SM Camp: 18 - 19 March 2019", "Team bonding: 25 - 26 March 2019", "Freshmen Orientation: 11 - 12 April 2019"] },
+    { id: "shenzhen", title: "Shenzhen", category: "Overseas", img: "img/shenzhen.jpg", start: "2019-03-11", end: "2019-03-20", time: "10 days", venue: "Shenzhen, China",
+      summary: "Are you a Maker? A sponsored Maker Overseas Empowering Trip by MakerSpace NYP.",
+      body: ["Calling makers, tinkerers and innovators. MakerSpace NYP has a sponsored trip for you.", "In Shenzhen you will:"], list: ["Prototype in a well-equipped makerspace", "Meet experienced makers and entrepreneurs", "Source components in the electronics markets"] },
+    { id: "nyp-groove", title: "NYP GROOVE", category: "Performance", img: "img/nyp-groove.jpg", start: "2019-05-05", end: "2019-05-11", time: "3pm - 5pm", venue: "Block A, Nanyang Polytechnic",
+      summary: "Think you've got the moves? Round up your squad for the NYP GROOVE! street dance competition.",
+      body: ["Think you've got the moves to thrill and rock an audience? Round up your squad and show off your cool steps at NYP GROOVE! street dance competition.", "Stand to win attractive prizes! Organised by NYP Dance Club."] },
+    { id: "penang", title: "Penang", category: "Overseas", img: "img/penang.jpg", start: "2019-03-19", end: "2019-03-22", time: "4 days 3 nights", venue: "Penang, Malaysia",
+      summary: "SEG Overseas Educational Trip to Penang, Malaysia. Estimated $650 before funding.",
+      body: ["A 4-day, 3-night School of Engineering trip with industry visits and a heritage city tour.", "Cost covers air ticket, meals, accommodation, insurance, land tour and admission fees."], note: "Briefing on 1 Feb 2019, 12 noon at LTQ-8. Apply by 19 Feb 2019 on the Student Portal." },
+    { id: "leadership", title: "Leadership Camp", category: "Camp", img: "img/leadership-camp.jpg", start: "2018-02-28", end: "2018-03-02", time: "3 days", venue: "Organised by SBM Club",
+      summary: "SBM Club presents Leadership Training Camp '18. Camp fee $10.",
+      body: ["Three days of leadership challenges and team activities.", "Sign-up booth: 15 - 17 Jan, 10am - 5pm, Block C level 2 mirrored walkway."] },
+    { id: "equinox", title: "Camp Equinox", category: "Camp", img: "img/camp-equinox.jpg", start: "2017-05-20", end: "2017-05-21", time: "2 days 1 night", venue: "NYP campus",
+      summary: "NYPSU orientation camp. Two days of games, night activities and new friends.",
+      body: ["Camp Equinox is the NYP Students' Union orientation camp for incoming students.", "Includes camp tee, meals and CCA points."] },
+    { id: "trail", title: "Trail Running", category: "Overseas", img: "img/trail-running.jpg", start: "2018-01-19", end: "2018-01-22", time: "4 days", venue: "Chiang Mai, Thailand",
+      summary: "Trail Running & Nutrition Retreat in Chiang Mai, Thailand.",
+      body: ["Four days of guided trail runs in the hills around Chiang Mai, with talks on running nutrition.", "Suitable for beginners and experienced runners."] }
+  ];
+  var CATS = ["All", "Overseas", "Camp", "CCA", "Performance", "Exhibition"];
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var KEY = "events-nyp-proto-v1";
+
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  var store = load();
+  store.signed = store.signed || [];
+  store.hosted = store.hosted || [];
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+  // Used by the showcase page's "Reset data" button.
+  window.nypDemoReset = function () { store = { signed: [], hosted: [] }; try { localStorage.removeItem(KEY); } catch (e) {} };
+  function all() { return store.hosted.concat(EVENTS); }
+  function byId(id) { return all().filter(function (e) { return e.id === id; })[0]; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function d(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function fmt(s) { var x = d(s); return x.getDate() + " " + MONTHS[x.getMonth()] + " " + x.getFullYear(); }
+  function range(e) { return e.start === e.end ? fmt(e.start) : (fmt(e.start).replace(/ \d{4}$/, d(e.start).getFullYear() === d(e.end).getFullYear() ? "" : " " + d(e.start).getFullYear()) + " - " + fmt(e.end)); }
+
+  var BACK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>';
+  var view = document.getElementById("view");
+  var cal = { y: 2019, m: 2, sel: null };   // opens on March 2019, as on the poster
+  var search = { q: "", cat: "All" };
+
+  function card(e) {
+    return '<button class="card" data-open="' + esc(e.id) + '"><img src="' + esc(e.img) + '" alt="" loading="lazy"><span class="txt"><h3>' + esc(e.title) + '</h3><p>' + esc(e.summary) + '</p><span class="more">Read More&gt;&gt;</span></span></button>';
+  }
+  function title(text, back, dark) {
+    if (!back) return '<h1 class="title' + (dark ? " dark" : "") + '">' + text + '</h1>';
+    return '<div class="title-row"><button class="back" data-back aria-label="Back">' + BACK + '</button><h1 class="title' + (dark ? " dark" : "") + '">' + text + '</h1><span></span></div>';
+  }
+
+  var screens = {
+    events: function () {
+      return title("Events@NYP") + '<main>' +
+        (store.user ? '<p class="who">Logged in as <b>' + esc(store.user) + '</b></p>' : '') +
+        '<div class="toolbar"><button class="cal-link" data-go="calendar"><span>Events Calendar</span><img src="img/calendar.png" alt=""></button>' +
+        (store.user ? '<button class="btn-navy" data-go="host">Host</button>' : '<button class="btn-navy" data-go="login">Login</button>') + '</div>' +
+        '<div class="grid">' + all().map(card).join("") + '</div></main>';
+    },
+    event: function (id) {
+      var e = byId(id);
+      if (!e) return screens.events();
+      var signed = store.signed.indexOf(e.id) > -1;
+      var body = (e.body || []).map(function (p) { return '<p style="margin:0 0 8px">' + esc(p) + '</p>'; }).join("") +
+        (e.list ? '<ul>' + e.list.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join("") + '</ul>' : '') +
+        (e.note ? '<p style="margin:10px 0 0"><b>' + esc(e.note) + '</b></p>' : '');
+      return title("Event Details") + '<main>' +
+        '<div class="detail-img"><div class="frame"><img src="' + esc(e.img) + '" alt="' + esc(e.title) + ' poster"></div></div>' +
+        '<div class="d-head"><button class="back" data-back aria-label="Back">' + BACK + '</button><h2 class="title">' + esc(e.title) + '</h2><span class="tag">' + esc(e.category) + '</span>' +
+        '<button class="btn-navy" data-signup="' + esc(e.id) + '"' + (signed ? " disabled" : "") + '>' + (signed ? "Signed Up" : "Sign Up") + '</button></div>' +
+        '<div class="info">Venue: ' + esc(e.venue) + '<br>Date: ' + esc(range(e)) + '<br>Time: ' + esc(e.time) + '</div>' +
+        '<div class="desc-row"><span>Description:</span><span class="share"><small>Share with friends</small>' +
+        '<span class="gplus" role="img" aria-label="Google+">G+</span>' +
+        '<svg viewBox="0 0 24 24" aria-label="Twitter"><path d="M22 5.9c-.7.3-1.5.5-2.3.6.8-.5 1.5-1.3 1.8-2.2-.8.5-1.7.8-2.6 1A4.1 4.1 0 0 0 12 9.1 11.6 11.6 0 0 1 3.4 4.8a4.1 4.1 0 0 0 1.3 5.5c-.7 0-1.3-.2-1.9-.5 0 2 1.4 3.7 3.3 4.1-.6.2-1.2.2-1.9.1.5 1.6 2 2.8 3.8 2.9A8.2 8.2 0 0 1 2 18.6 11.6 11.6 0 0 0 8.3 20.4c7.5 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.5-1.3 2-2.3z"/></svg>' +
+        '<svg viewBox="0 0 24 24" aria-label="Facebook"><path d="M14 8h3V4h-3c-2.8 0-4 1.7-4 4.3V10H7v4h3v8h4v-8h3l.5-4H14V8.6c0-.4.2-.6.6-.6z"/></svg>' +
+        '<svg viewBox="0 0 24 24" aria-label="Instagram"><path d="M12 7.3A4.7 4.7 0 1 0 12 16.7 4.7 4.7 0 0 0 12 7.3zm0 7.7a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm4.9-8.9a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM20.9 7c-.1-1.5-.4-2.8-1.5-3.9S17 1.7 15.5 1.6C14 1.5 10 1.5 8.5 1.6 7 1.7 5.7 2 4.6 3.1S3.1 5.5 3 7c-.1 1.5-.1 5.5 0 7 .1 1.5.4 2.8 1.5 3.9s2.4 1.4 3.9 1.5c1.5.1 5.5.1 7 0 1.5-.1 2.8-.4 3.9-1.5s1.4-2.4 1.5-3.9c.1-1.5.1-5.5 0-7zm-2.1 9.4a3 3 0 0 1-1.7 1.7c-1.2.5-4 .4-5.1.4s-3.9.1-5.1-.4a3 3 0 0 1-1.7-1.7c-.5-1.2-.4-4-.4-5.4s-.1-4.2.4-5.4a3 3 0 0 1 1.7-1.7C8.1 3.4 10.9 3.5 12 3.5s3.9-.1 5.1.4a3 3 0 0 1 1.7 1.7c.5 1.2.4 4 .4 5.4s.1 4.2-.4 5.4z"/></svg>' +
+        '</span></div><div class="desc">' + body + '</div></main>';
+    },
+    calendar: function () {
+      var y = cal.y, m = cal.m, days = new Date(y, m + 1, 0).getDate();
+      var onDay = {};
+      // Each event is pinned to its start day, like the thumbnails on the poster's calendar.
+      all().forEach(function (e) {
+        var t = d(e.start);
+        if (t.getFullYear() === y && t.getMonth() === m) { var k = t.getDate(); (onDay[k] = onDay[k] || []).push(e); }
+      });
+      var cells = "";
+      for (var i = 1; i <= days; i++) {
+        var ev = onDay[i];
+        cells += ev ? '<button class="day has' + (cal.sel === i ? " sel" : "") + '" data-day="' + i + '" aria-label="' + i + " " + MONTHS[m] + ": " + esc(ev.map(function (e) { return e.title; }).join(", ")) + '"><span>' + i + '</span><img src="' + esc(ev[0].img) + '" alt=""></button>'
+                    : '<div class="day"><span>' + i + '</span></div>';
+      }
+      var list = cal.sel && onDay[cal.sel] ? onDay[cal.sel] : null;
+      if (!list) { var seen = {}; list = []; Object.keys(onDay).forEach(function (k) { onDay[k].forEach(function (e) { if (!seen[e.id]) { seen[e.id] = 1; list.push(e); } }); }); }
+      return title("Events<br>Calendar", true, true) + '<main><div class="cal">' +
+        '<button class="cal-nav prev" data-cal="-1" aria-label="Previous month">&lsaquo;</button><button class="cal-nav next" data-cal="1" aria-label="Next month">&rsaquo;</button>' +
+        '<div class="cal-grid">' + cells + '</div>' +
+        '<div class="cal-foot"><span class="m">' + MONTHS[m] + '</span><span class="y">' + y + '</span><span class="oval"><img src="img/nyp-logo.png" alt="NYP"></span></div></div>' +
+        '<div class="cal-list">' + (list.length ? list.map(function (e) { return '<button class="cal-item" data-open="' + esc(e.id) + '"><img src="' + esc(e.img) + '" alt=""><span><b>' + esc(e.title) + '</b><small>' + esc(range(e)) + ' &middot; ' + esc(e.venue) + '</small></span></button>'; }).join("") : '<p class="empty">No events this month. Use the yellow arrows to change month.</p>') + '</div></main>';
+    },
+    search: function () {
+      var q = search.q.trim().toLowerCase();
+      var res = all().filter(function (e) {
+        return (search.cat === "All" || e.category === search.cat) && (!q || (e.title + " " + e.venue + " " + e.summary + " " + e.category).toLowerCase().indexOf(q) > -1);
+      });
+      return title("Search") + '<main>' +
+        '<label class="search-box"><img src="img/search.png" alt=""><input id="q" type="search" placeholder="Search events, venues..." value="' + esc(search.q) + '" aria-label="Search events" autocomplete="off"></label>' +
+        '<div class="chips" role="group" aria-label="Category">' + CATS.map(function (c) { return '<button class="chip" data-cat="' + c + '" aria-pressed="' + (search.cat === c) + '">' + c + '</button>'; }).join("") + '</div>' +
+        '<div class="grid" id="results">' + (res.length ? res.map(card).join("") : '') + '</div>' + (res.length ? '' : '<p class="empty">No events match. Try another word or category.</p>') + '</main>';
+    },
+    menu: function () {
+      var item = function (go, icon, label, sub, extra) { return '<button class="menu-item" ' + (extra || 'data-go="' + go + '"') + '><img src="img/' + icon + '" alt=""><span>' + label + '<small>' + sub + '</small></span></button>'; };
+      return title("Menu") + '<main><div class="menu-list">' +
+        item("calendar", "calendar.png", "Upcoming events", "See events by month") +
+        item("", "plane.png", "Overseas trips", "Educational and maker trips abroad", 'data-filter="Overseas"') +
+        item("", "camp.png", "Camps", "Leadership and orientation camps", 'data-filter="Camp"') +
+        item("mine", "tick.png", "My sign-ups", store.signed.length + " event" + (store.signed.length === 1 ? "" : "s")) +
+        item(store.user ? "host" : "login", "news.png", "Host an event", store.user ? "Publish your own event" : "Log in to publish an event") +
+        (store.user ? item("", "helpdesk.png", "Log out", "Signed in as " + esc(store.user), 'data-logout') : item("login", "helpdesk.png", "Login", "Students and lecturers")) +
+        '</div></main>';
+    },
+    mine: function () {
+      var mine = all().filter(function (e) { return store.signed.indexOf(e.id) > -1; });
+      return title("My Sign-Ups", true) + '<main><div class="grid">' + mine.map(card).join("") + '</div>' + (mine.length ? '' : '<p class="empty">You haven\'t signed up for any events yet. Open an event and tap Sign Up.</p>') + '</main>';
+    },
+    login: function () {
+      return title("Login", true) + '<main><form class="form" id="login-form" novalidate>' +
+        '<label>Admin number or staff ID<input id="u" name="u" autocomplete="username" placeholder="e.g. 171067G" required></label>' +
+        '<label>Password<input id="p" name="p" type="password" autocomplete="current-password" required></label>' +
+        '<p class="err" id="login-err"></p><button class="btn-navy" type="submit">Login</button>' +
+        '<p class="empty" style="padding:0;font-size:.8rem;font-style:italic">Demo login: any ID and password works.</p></form></main>';
+    },
+    host: function () {
+      if (!store.user) return screens.login();
+      return title("Host Event", true) + '<main><form class="form" id="host-form" novalidate>' +
+        '<label>Event name<input id="h-title" required maxlength="30"></label>' +
+        '<label>Category<select id="h-cat">' + CATS.slice(1).map(function (c) { return '<option>' + c + '</option>'; }).join("") + '</select></label>' +
+        '<div class="row2"><label>Start date<input id="h-start" type="date" required value="2019-03-27"></label><label>End date<input id="h-end" type="date" required value="2019-03-27"></label></div>' +
+        '<div class="row2"><label>Time<input id="h-time" placeholder="2pm - 5pm" required></label><label>Venue<input id="h-venue" required></label></div>' +
+        '<label>Description<textarea id="h-desc" required></textarea></label>' +
+        '<label>Poster image<input id="h-img" type="file" accept="image/*"></label>' +
+        '<p class="err" id="host-err"></p><button class="btn-navy" type="submit">Publish</button></form></main>';
+    }
+  };
+
+  function route() {
+    var h = location.hash.replace(/^#/, "") || "events";
+    var parts = h.split("-"), name = parts[0], arg = parts.slice(1).join("-");
+    if (name === "e") { view.innerHTML = screens.event(arg); setTab(""); }
+    else { if (!screens[name]) name = "events"; view.innerHTML = screens[name](); setTab(name === "search" || name === "menu" ? name : name === "events" ? "events" : ""); }
+    window.scrollTo(0, 0);
+  }
+  function setTab(n) { document.querySelectorAll(".tab").forEach(function (t) { if (t.dataset.go === n) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); }); }
+  function go(h) { if (location.hash === "#" + h) route(); else location.hash = h; }
+
+  function sheet(icon, head, text) {
+    var s = document.getElementById("sheet");
+    s.innerHTML = '<div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(head) + '"><div class="sheet-box"><img src="img/' + icon + '" alt=""><h2>' + esc(head) + '</h2><p>' + esc(text) + '</p><button class="btn-navy" id="sheet-ok">OK</button></div></div>';
+    var ok = document.getElementById("sheet-ok"); ok.focus();
+    ok.addEventListener("click", function () { s.innerHTML = ""; });
+  }
+
+  document.addEventListener("click", function (ev) {
+    var t = ev.target.closest("button, a");
+    if (!t) return;
+    if (t.dataset.go) { if (t.dataset.go === "calendar") cal.sel = null; go(t.dataset.go); }
+    else if (t.dataset.open) go("e-" + t.dataset.open);
+    else if (t.hasAttribute("data-back")) { if (history.length > 1) history.back(); else go("events"); }
+    else if (t.dataset.signup) {
+      var e = byId(t.dataset.signup);
+      if (store.signed.indexOf(e.id) < 0) { store.signed.push(e.id); save(); }
+      route(); sheet("tick.png", "You're signed up!", "We've saved your place for " + e.title + " on " + range(e) + ". Find it under Menu > My sign-ups.");
+    }
+    else if (t.dataset.cal) { cal.m += +t.dataset.cal; if (cal.m < 0) { cal.m = 11; cal.y--; } if (cal.m > 11) { cal.m = 0; cal.y++; } cal.sel = null; route(); }
+    else if (t.dataset.day) { cal.sel = cal.sel === +t.dataset.day ? null : +t.dataset.day; route(); }
+    else if (t.dataset.cat) { search.cat = t.dataset.cat; route(); }
+    else if (t.dataset.filter) { search.cat = t.dataset.filter; search.q = ""; go("search"); }
+    else if (t.hasAttribute("data-logout")) { delete store.user; save(); go("events"); }
+  });
+
+  document.addEventListener("input", function (ev) {
+    if (ev.target.id !== "q") return;
+    search.q = ev.target.value;
+    var pos = ev.target.selectionStart;
+    route();
+    var q = document.getElementById("q"); q.focus(); try { q.setSelectionRange(pos, pos); } catch (e) {}
+  });
+
+  document.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (ev.target.id === "login-form") {
+      var u = document.getElementById("u").value.trim(), p = document.getElementById("p").value;
+      if (!u || !p) { document.getElementById("login-err").textContent = "Enter your ID and password to log in."; return; }
+      store.user = u.toUpperCase(); save(); go("events");
+    }
+    if (ev.target.id === "host-form") {
+      var v = function (id) { return document.getElementById(id).value.trim(); };
+      var err = document.getElementById("host-err");
+      if (!v("h-title") || !v("h-start") || !v("h-end") || !v("h-time") || !v("h-venue") || !v("h-desc")) { err.textContent = "Fill in every field before publishing."; return; }
+      if (v("h-end") < v("h-start")) { err.textContent = "End date can't be before the start date."; return; }
+      var finish = function (img) {
+        var e = { id: "u" + Date.now().toString(36), title: v("h-title"), category: document.getElementById("h-cat").value, img: img || "img/fusion19.jpg", start: v("h-start"), end: v("h-end"), time: v("h-time"), venue: v("h-venue"), summary: v("h-desc").slice(0, 110), body: [v("h-desc")], host: store.user };
+        store.hosted.unshift(e);
+        try { localStorage.setItem(KEY, JSON.stringify(store)); }
+        catch (x) { e.img = "img/fusion19.jpg"; save(); }
+        go("e-" + e.id);
+        sheet("tick.png", "Event published", e.title + " is now listed on Events@NYP and in the calendar.");
+      };
+      var f = document.getElementById("h-img").files[0];
+      if (!f) return finish(null);
+      var r = new FileReader();
+      r.onload = function () {
+        var im = new Image();
+        im.onload = function () { var c = document.createElement("canvas"), s = Math.min(1, 480 / Math.max(im.width, im.height)); c.width = im.width * s; c.height = im.height * s; c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); finish(c.toDataURL("image/jpeg", .8)); };
+        im.onerror = function () { finish(null); };
+        im.src = r.result;
+      };
+      r.readAsDataURL(f);
+    }
+  });
+
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+</body>
+</html>

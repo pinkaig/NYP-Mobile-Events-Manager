@@ -4,22 +4,24 @@ A mobile events app for Nanyang Polytechnic students to browse campus events and
 
 ### >>> [Try the live demo](https://pinkaig.github.io/NYP-Mobile-Events-Manager/)
 
-The demo runs the real app inside a phone frame in your browser. There's nothing to install.
+The demo runs the app as designed for the project poster, inside a phone frame in your browser. There's nothing to install.
 
 <p align="center">
-  <img src="docs/screenshots/events.png" width="240" alt="Event list screen">
+  <img src="docs/screenshots/events.png" width="240" alt="Events@NYP event list">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/add-event.png" width="240" alt="Create event form">
+  <img src="docs/screenshots/event-details.png" width="240" alt="Event details with Sign Up">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/users.png" width="240" alt="User directory screen">
+  <img src="docs/screenshots/calendar.png" width="240" alt="Events calendar">
 </p>
 
 ## Features
 
-- **Event list:** events loaded from the REST API (title, dates, venue, organiser)
-- **Create events:** a form that posts a new event to the API, with a category picker (Dance, Sports, Entertainment, Cultural)
-- **User directory:** registered users and their roles
-- **Backend support** for event registrations, feedback and ratings, plus token-based register/login endpoints
+- **Events@NYP:** browse campus events as cards, then open one for its venue, dates, time and description
+- **Sign up:** register for an event and see your list under *My sign-ups*
+- **Events calendar:** a month view with each event's poster on its start day
+- **Search:** search by name or venue, and filter by category (Overseas, Camp, CCA, Performance, Exhibition)
+- **Host an event:** log in and publish your own event with a poster image
+- **Backend:** a Laravel REST API for users, events, categories, registrations and feedback, with token-based register/login endpoints
 
 ## Tech stack
 
@@ -46,7 +48,9 @@ React app  ──JSON──▶  Laravel /api/*  ──Eloquent──▶  MySQL
 frontend/   React app source (src/, public/, package.json)
 backend/    Laravel API: app/ models + controllers, routes/api.php, migrations
 database/   nyp_db.sql export and database design diagram
-docs/       GitHub Pages showcase: index.html (phone frame) + app.html (live demo)
+docs/       GitHub Pages showcase: index.html (phone frame)
+            prototype/  the poster design as a working app (live demo)
+            app.html    the original React build with a simulated API
 tools/      build-demo.js, which packs the React build into docs/app.html
 ```
 
@@ -75,6 +79,8 @@ php artisan serve
 The frontend calls `http://nypapp.eventsmgr/api`, which was a local Apache virtual host in 2019. Point it at your API URL, for example `http://127.0.0.1:8000/api`.
 
 ## About the live demo
+
+The phone on the showcase runs `docs/prototype/`. It's the app's poster design rebuilt as a working web prototype in plain HTML, CSS and JavaScript. It uses the project's own images and details from the real 2019 event posters. Sign-ups and hosted events are saved in the visitor's browser.
 
 `docs/app.html` is the compiled React app with a small in-browser stand-in for the Laravel API. The stand-in answers the same `/api` routes, starting from the data in `nyp_db.sql`. Changes are saved in the visitor's browser only. To rebuild it:
 

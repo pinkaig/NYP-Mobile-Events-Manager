@@ -125,9 +125,9 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
     <div>
       <p class="eyebrow"><b>Final Year Project</b> &middot; Nanyang Polytechnic &middot; 2019</p>
       <h1>NYP Mobile <span>Events</span> Manager</h1>
-      <p class="lead">A mobile app where students browse campus events and organisers publish new ones. The phone on this page is running the real app, so you can tap around and create an event.</p>
+      <p class="lead">A mobile app where students and lecturers browse campus events, sign up and host their own. The phone on this page runs the app as designed for the project poster, so you can tap around and try it.</p>
       <div class="actions">
-        <a class="btn primary" href="app.html" target="_blank" rel="noopener">Open the app full screen</a>
+        <a class="btn primary" href="prototype/" target="_blank" rel="noopener">Open the app full screen</a>
         <a class="btn ghost" href="https://github.com/pinkaig/NYP-Mobile-Events-Manager">View source on GitHub</a>
       </div>
       <ul class="stack" aria-label="Tech stack">
@@ -136,7 +136,7 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
     </div>
     <div class="device">
       <div class="phone">
-        <div class="screen"><iframe id="app" src="app.html#/events" title="NYP Mobile Events Manager running live"></iframe></div>
+        <div class="screen"><iframe id="app" src="prototype/index.html#events" title="Events@NYP app running live"></iframe></div>
       </div>
       <div class="device-note">
         <span>Live demo &middot; your changes stay on your device</span>
@@ -152,9 +152,9 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
       <h2>Try it in under a minute</h2>
       <p class="sub">Use the phone above. Everything runs in your browser, so there's nothing to install or sign up for.</p>
       <ol class="steps">
-        <li><h3>Browse events</h3><p>The <strong>Events</strong> tab loads the event list from the API. Swipe the table sideways to see venue and organiser.</p></li>
-        <li><h3>Create an event</h3><p>Tap <strong>Create an Event</strong>, fill in the form and submit. The API stores it like a new database row.</p></li>
-        <li><h3>See it appear</h3><p>Go back to <strong>Events</strong> and your new event is in the list. Check <strong>Users</strong> for the user directory.</p></li>
+        <li><h3>Browse and sign up</h3><p>Tap any event on <strong>Events@NYP</strong> to see venue, dates and details, then tap <strong>Sign Up</strong>.</p></li>
+        <li><h3>Check the calendar</h3><p>Tap <strong>Events Calendar</strong>. Pink days have events; tap one, or use the yellow arrows to change month.</p></li>
+        <li><h3>Host your own</h3><p>Tap <strong>Login</strong> (any ID works), then <strong>Host</strong>. Your event appears in the list and on the calendar.</p></li>
       </ol>
     </div>
   </section>
@@ -215,9 +215,9 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
       <div>
         <h2>About this demo</h2>
         <ul>
-          <li><strong>The app is the original 2019 build.</strong> It's compiled from the React source in <span class="mono">frontend/</span>, with mobile layout fixes added on top.</li>
-          <li><strong>The backend is simulated so the demo needs no server.</strong> A small script in the page answers the same <span class="mono">/api</span> routes as the Laravel controllers. It starts from the data in <span class="mono">database/nyp_db.sql</span>.</li>
-          <li><strong>Your edits stay on your device.</strong> They're saved in your browser only. Use <em>Reset data</em> under the phone to start over.</li>
+          <li><strong>The phone shows the app as it was designed.</strong> It's a working web prototype of the screens on the 2019 project poster, built with the project's own images and real event posters.</li>
+          <li><strong>The project's code is in the repo.</strong> The React frontend is in <span class="mono">frontend/</span>, the Laravel API in <span class="mono">backend/</span> and the MySQL schema in <span class="mono">database/</span>. The original React build also runs <a href="app.html" target="_blank" rel="noopener">here</a>.</li>
+          <li><strong>Your sign-ups and events stay on your device.</strong> They're saved in your browser only. Use <em>Reset data</em> under the phone to start over.</li>
         </ul>
       </div>
       <div>
@@ -240,7 +240,7 @@ footer { padding-block: 40px 56px; color: var(--muted); font-size: 0.9rem; }
 document.getElementById('reset').addEventListener('click', function () {
   var f = document.getElementById('app');
   try { f.contentWindow.nypDemoReset(); } catch (e) {}
-  f.src = 'app.html#/events';
+  f.src = 'prototype/index.html#events';
   try { f.contentWindow.location.reload(); } catch (e) {}
 });
 </script>
